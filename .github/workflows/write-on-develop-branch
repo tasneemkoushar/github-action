@@ -3,7 +3,7 @@ name: Write to protected Branch
 on:
   push:
     branches:
-      - develop  # Trigger only on test-branch
+      - develop  
 
 jobs:
   write-file:
@@ -25,5 +25,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git add test_branch_generated_file.txt
-          git commit -m "Add/update file from GitHub Action in develop-branch" || echo "Nothing to commit"
+          git commit -m "Add/update file from GitHub Action in develop" || echo "Nothing to commit"
           git push origin develop
