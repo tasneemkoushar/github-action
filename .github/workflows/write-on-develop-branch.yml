@@ -1,29 +1,47 @@
-name: Write to protected Branch
+name: Write via Pull Request
 
 on:
   push:
     branches:
-      - develop  
+      - develop
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  write-file:
+  create-pr:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Make a change (create/update file)
+      - name: Set variables
+        id: vars
         run: |
-          echo "This file was written develop branch which is protected on $(date)" > test_branch_generated_file.txt
+          echo "BRANCH_NAME=update-branch-$(date +%s)" >> $GITHUB_ENV
 
-      - name: Commit and push changes
+      - name: Make a change
+        run: |
+          echo "Auto-generated file from GitHub Actions on $(date)" > test_branch_generated_file.txt
+
+      - name: Commit changes to a new branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          git checkout -b ${{ env.BRANCH_NAME }}
           git add test_branch_generated_file.txt
-          git commit -m "Add/update file from GitHub Action in develop" || echo "Nothing to commit"
-          git push origin develop
+          git commit -m "Add generated file via workflow"
+          git push origin ${{ env.BRANCH_NAME }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: develop
+          head: ${{ env.BRANCH_NAME }}
+          title: "Auto-generated file via GitHub Action"
+          body: "This pull request was created automatically by a GitHub Action."
