@@ -1,0 +1,29 @@
+name: Write to protected Branch
+
+on:
+  push:
+    branches:
+      - develop  # Trigger only on test-branch
+
+jobs:
+  write-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Make a change (create/update file)
+        run: |
+          echo "This file was written develop branch which is protected on $(date)" > test_branch_generated_file.txt
+
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+          git add test_branch_generated_file.txt
+          git commit -m "Add/update file from GitHub Action in test-branch" || echo "Nothing to commit"
+          git push origin test-branch
