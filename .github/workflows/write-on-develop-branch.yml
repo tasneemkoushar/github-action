@@ -26,21 +26,24 @@ jobs:
         run: |
           echo "Auto-generated file from GitHub Actions on $(date)" > test_branch_generated_file.txt
 
-      - name: Commit changes to a new branch
+      - name: Commit changes to a new branch using PAT
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b ${{ env.BRANCH_NAME }}
           git add test_branch_generated_file.txt
           git commit -m "Add generated file via workflow"
+
+          # Set remote with PAT
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
           git push origin ${{ env.BRANCH_NAME }}
 
-      - name: Create Pull Request
+      - name: Create Pull Request using PAT
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.WORKFLOW_PAT }}
           base: develop
           head: ${{ env.BRANCH_NAME }}
           title: "Auto-generated file via GitHub Action"
