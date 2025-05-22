@@ -25,5 +25,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git add test_branch_generated_file.txt
-          git commit -m "Add/update file from GitHub Action in test-branch" || echo "Nothing to commit"
-          git push origin test-branch
+          git commit -m "Add/update file from GitHub Action in develop-branch" || echo "Nothing to commit"
+          git push origin develop
